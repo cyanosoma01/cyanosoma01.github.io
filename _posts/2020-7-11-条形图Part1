@@ -1,0 +1,262 @@
+# 条形图
+Part 1 
+- 简单条形图
+- 簇状条形图
+- 频数条形图
+- 条形图着色
+- 正负条形图分别着色
+- 调整宽度和条形间距
+
+Part 2
+- 绘制堆积条形图
+- 绘制百分比堆积条形图
+- 添加数据标签
+- 绘制Cleveland点图
+
+---
+### 简单条形图
+```
+# 首先导入包
+library(ggplot2)
+# 安装gcookbook包，用于调用数据
+install.packages("gcookbook")
+library(gcookbook)
+```
+
+```
+# identity将y对应的值作为条形的高度，count则是每组的个数，此时不需要y参数
+ggplot(pg_mean, aes(x=group, y=weight)) + geom_bar(stat="identity")
+```
+![](https://upload-images.jianshu.io/upload_images/23891495-df2ea608832f63a1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+
+```
+# 更改颜色，fill填充条形内颜色，colour调整外框颜色
+ggplot(pg_mean, aes(x=group, y=weight)) + 
+    geom_bar(stat="identity", fill="lightblue",colour="black")
+ggplot(pg_mean, aes(x=group, y=weight)) + 
+    geom_bar(stat="identity", fill="red",colour="blue")
+
+```
+![](https://upload-images.jianshu.io/upload_images/23891495-15a00b4a7f363c4f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+![](https://upload-images.jianshu.io/upload_images/23891495-33b3f124ef4782b0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+
+---
+### 簇状条形图
+
+```
+# 查看gcookbook中的dataframe数据cabbage_exp
+cabbage_exp
+
+# Date的因子（类别）作为x轴，Weight作为y轴，同时将Cultivar映射给fill
+# 可以理解为组别，并将position设置为dodge，即水平方向并排，而默认是
+# 垂直方向堆叠
+ggplot(cabbage_exp, aes(x=Date, y=Weight, fill=Cultivar)) + 
+    geom_bar(position="dodge", stat="identity")
+```
+![](https://upload-images.jianshu.io/upload_images/23891495-6c84393b4ec52686.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+```
+# 每个bar添加黑色边框线，并使用新的调色板
+library(RColorBrewer)
+ggplot(cabbage_exp, aes(x=Date, y=Weight, fill=Cultivar)) + 
+    geom_bar(position="dodge", stat="identity", colour="black") + 
+    scale_fill_brewer(palette="Pastell")
+
+```
+![](https://upload-images.jianshu.io/upload_images/23891495-8fced6653d91f314.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+
+```
+# 删除最后一行数据，再进行绘图，发现临近的会自动扩充到缺失位置
+mv_fina = cabbage_exp[1:5,]
+ggplot(mv_fina, aes(x=Date, y=Weight, fill=Cultivar)) + 
+    geom_bar(position="dodge", stat="identity", colour="black") + 
+    scale_fill_brewer(palette="Pastell")
+```
+![](https://upload-images.jianshu.io/upload_images/23891495-82fc2a19c1ae13ef.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+---
+
+### 频数条形图
+
+```
+# 数据集中每行对应一个样本，针对样品出现频数绘制条形图
+diamonds
+# # A tibble: 53,940 x 10
+#    carat cut       color clarity depth table price     x     y     z
+#    <dbl> <ord>     <ord> <ord>   <dbl> <dbl> <int> <dbl> <dbl> <dbl>
+#  1 0.23  Ideal     E     SI2      61.5    55   326  3.95  3.98  2.43
+#  2 0.21  Premium   E     SI1      59.8    61   326  3.89  3.84  2.31
+#  3 0.23  Good      E     VS1      56.9    65   327  4.05  4.07  2.31
+#  4 0.290 Premium   I     VS2      62.4    58   334  4.2   4.23  2.63
+#  5 0.31  Good      J     SI2      63.3    58   335  4.34  4.35  2.75
+#  6 0.24  Very Good J     VVS2     62.8    57   336  3.94  3.96  2.48
+#  7 0.24  Very Good I     VVS1     62.3    57   336  3.95  3.98  2.47
+#  8 0.26  Very Good H     SI1      61.9    55   337  4.07  4.11  2.53
+#  9 0.22  Fair      E     VS2      65.1    61   337  3.87  3.78  2.49
+# 10 0.23  Very Good H     VS1      59.4    61   338  4     4.05  2.39
+# # ... with 53,930 more rows
+
+ggplot(diamonds, aes(x=cut)) + geom_bar()  #使用geom_bar(stat="bin")同
+```
+![](https://upload-images.jianshu.io/upload_images/23891495-c31cfbb6271c830e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+```
+# 当x对应于连续型变量时，会得到一张直方图,binwidth可以调整计数范围
+# 使用geom_histogram()得到类似的结果
+ggplot(diamonds, aes(x=carat)) + geom_bar(binwidth=0.2)
+ggplot(diamonds, aes(x=carat)) + geom_histogram()
+```
+![](https://upload-images.jianshu.io/upload_images/23891495-1b7b6c81587bc130.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+---
+
+### 条形图着色
+
+```
+# 使用数据集uspopchange，描述了美国各州人口自2000年到2010年的变化情况
+# 这里选取人口增长最快的10个州进行绘图，图中根据地区信息（东北、南、中北、西部）
+# 进行着色
+
+upc = subset(uspopchange, rank(Change)>40)
+upc
+#             State Abb Region Change
+# 3         Arizona  AZ   West   24.6
+# 6        Colorado  CO   West   16.9
+# 10        Florida  FL  South   17.6
+# 11        Georgia  GA  South   18.3
+# 13          Idaho  ID   West   21.1
+# 29         Nevada  NV   West   35.1
+# 34 North Carolina  NC  South   18.5
+# 41 South Carolina  SC  South   15.3
+# 44          Texas  TX  South   20.6
+# 45           Utah  UT   West   23.8
+
+
+# aes的帮助文档解释：Aesthetic mappings describe how variables 
+# in the data are mapped to visual properties (aesthetics) of geoms. 
+# Aesthetic mappings can be set in ggplot() and in individual layers.
+# 美学映射描述了如何将数据中的变量映射到几何图形的视觉
+# 属性（美学）。 可以在ggplot()和各个图层中设置美学映射。
+
+ggplot(upc, aes(x=Abb, y=Change, fill=Region)) + 
+    geom_bar(stat="identity")
+```
+![](https://upload-images.jianshu.io/upload_images/23891495-0413da49198d1d01.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+
+```
+# 默认颜色不好看可以使用scale_fill_manual函数或者scale_fill_brewer函数重新定义
+# Ntoe：颜色的映射设定是在aes内部完成，而颜色的重新设定是在aes外部完成
+
+# reorder是一个泛型函数。“default”方法将其第一个参数视为分类变量，
+# 并根据第二个变量(通常是数值)的值重新排序其级别
+# geom_bar()函数中colour参数将柱子的边框设置为黑色
+ggplot(upc, aes(x=reorder(Abb,Change), y=Change, fill=Region)) + 
+    geom_bar(stat="identity", colour="black") + 
+    scale_fill_manual(values=c("#669933","#FFCC66")) + xlab("State")
+```
+![](https://upload-images.jianshu.io/upload_images/23891495-1c0672dcb3bbc121.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+### 对正负条形图分别着色
+
+```
+# 这里使用climate数据
+climate[1:5,]
+#     Source Year Anomaly1y Anomaly5y Anomaly10y Unc10y
+# 1 Berkeley 1800        NA        NA     -0.435  0.505
+# 2 Berkeley 1801        NA        NA     -0.453  0.493
+# 3 Berkeley 1802        NA        NA     -0.460  0.486
+# 4 Berkeley 1803        NA        NA     -0.493  0.489
+# 5 Berkeley 1804        NA        NA     -0.536  0.483
+
+csub = subset(climate, Source=="Berkeley" & Year >=1900)
+csub$pos = csub$Anomaly10y >= 0 
+# head(csub)
+#       Source Year Anomaly1y Anomaly5y Anomaly10y Unc10y   pos
+# 101 Berkeley 1900        NA        NA     -0.171  0.108 FALSE
+# 102 Berkeley 1901        NA        NA     -0.162  0.109 FALSE
+# 103 Berkeley 1902        NA        NA     -0.177  0.108 FALSE
+# 104 Berkeley 1903        NA        NA     -0.199  0.104 FALSE
+# 105 Berkeley 1904        NA        NA     -0.223  0.105 FALSE
+# 106 Berkeley 1905        NA        NA     -0.241  0.107 FALSE
+
+tail(csub)
+#       Source Year Anomaly1y Anomaly5y Anomaly10y Unc10y  pos
+# 200 Berkeley 1999        NA        NA      0.734  0.025 TRUE
+# 201 Berkeley 2000        NA        NA      0.748  0.026 TRUE
+# 202 Berkeley 2001        NA        NA      0.793  0.027 TRUE
+# 203 Berkeley 2002        NA        NA      0.856  0.028 TRUE
+# 204 Berkeley 2003        NA        NA      0.869  0.028 TRUE
+# 205 Berkeley 2004        NA        NA      0.884  0.029 TRUE
+
+ggplot(csub, aes(x=Year, y=Anomaly10y, fill=pos)) + 
+    geom_bar(stat="identity", position="identity")
+```
+![](https://upload-images.jianshu.io/upload_images/23891495-9b1d2b10c5df3238.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+```
+# 问题：上图中着色效果可能是与预期结果相反的：蓝色冷色调通常对应负值，红色暖色调通常对应正值，
+# 其次，图例有时会显得多余扰乱视觉
+# 使用guide=FALSE删除图例，使用size设置边框线宽度
+ggplot(csub, aes(x=Year, y=Anomaly10y, fill=pos)) + 
+    geom_bar(stat="identity", position="identity",colour="black", size=0.25) +
+    scale_fill_manual(values=c("#CCEEFF", "#FFDDDD"), guide=FALSE)
+```
+![](https://upload-images.jianshu.io/upload_images/23891495-04a90c099ceada2e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+---
+
+### 调整条形宽度和条形间距
+
+```
+# 使用width参数进行调整
+ggplot(pg_mean, aes(x=group, y=weight)) + geom_bar(stat="identity")
+ggplot(pg_mean, aes(x=group, y=weight)) + geom_bar(stat="identity",width=0.5)
+# 最大宽度为1
+ggplot(pg_mean, aes(x=group, y=weight)) + geom_bar(stat="identity",width=1)
+````
+![](https://upload-images.jianshu.io/upload_images/23891495-c25758bef6181cd7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](https://upload-images.jianshu.io/upload_images/23891495-b2790bba558450d3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](https://upload-images.jianshu.io/upload_images/23891495-252215a768c14a67.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+
+```
+cabbage_exp
+#   Cultivar Date Weight        sd  n         se
+# 1      c39  d16   3.18 0.9566144 10 0.30250803
+# 2      c39  d20   2.80 0.2788867 10 0.08819171
+# 3      c39  d21   2.74 0.9834181 10 0.31098410
+# 4      c52  d16   2.26 0.4452215 10 0.14079141
+# 5      c52  d20   3.11 0.7908505 10 0.25008887
+# 6      c52  d21   1.47 0.2110819 10 0.06674995
+
+ggplot(cabbage_exp, aes(x=Date, y=Weight, fill=Cultivar)) + 
+    geom_bar(stat="identity", width=0.5, position="dodge")
+
+```
+![](https://upload-images.jianshu.io/upload_images/23891495-4ee982be6b74bd69.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+
+```
+# 使用position_dodge函数设置簇状条形图的组内间距为0.7
+ggplot(cabbage_exp, aes(x=Date, y=Weight, fill=Cultivar)) + 
+    geom_bar(stat="identity", width=0.5, position=position_dodge(0.7))
+```
+![](https://upload-images.jianshu.io/upload_images/23891495-f6a6b6caed9a15fa.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+
+```
+# Note: width参数的默认值是0.9，position_dodge()函数中width的默认值也是0.9
+# 因此下面四个命令等价
+geom_bar(position="dodge")
+geom_bar(width=0.9, position_dodge())
+geom_bar(position=position_dodge(0.9))
+geom_bar(width=0.9, position=position_dodge(width=0.9))
+
+```
+---
+end
