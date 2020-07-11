@@ -1,3 +1,18 @@
+---
+layout:     post
+title:      条形图 Part1
+subtitle:   
+date:       2020-07-11
+author:     yinbinqiu
+header-img: image/20200703-surface.jpg
+catalog: true
+tags:
+    - gcookbook package
+    - barplot
+    - ggplot
+---
+
+
 # 条形图
 Part 1 
 - 简单条形图
