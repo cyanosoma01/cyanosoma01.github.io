@@ -1,3 +1,16 @@
+---
+layout:     post
+title:      Linux常用命令之ls
+subtitle:   
+date:       2020-08-28
+author:     yinbinqiu
+header-img: image/20200703-surface.jpg
+catalog: true
+tags:
+    - Linux
+    - ls
+---
+
 ls是最常用的命令也不为过，查看目录下的文件夹及文件
 linux下ls的brief tutorial，使用**ls --help**
 ![](https://upload-images.jianshu.io/upload_images/23891495-149545b28f491b39.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
